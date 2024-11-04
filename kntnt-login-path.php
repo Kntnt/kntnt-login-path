@@ -40,15 +40,14 @@ class Plugin {
 	private const KNTNT_LOGOUT_REDIRECT_PATH_FILTER = 'kntnt-logout-redirect-path';
 
 	/** @var array<string> Paths that should return 404 when custom login is active */
-	private const RESTRICTED_PAGES
-		= [
+	private const RESTRICTED_PAGES = [
 			'login',
 			'wp-login',
 			'wp-login.php',
 			'admin',
 			'wp-admin',
 			'wp-signup.php',
-		];
+	];
 
 	/** @var string|null Custom login path or null if not set */
 	private ?string $login_path;
@@ -70,6 +69,7 @@ class Plugin {
 	 * Sets up WordPress hooks and actions
 	 */
 	public function initialize(): void {
+
 		$this->request_path = trim( $_SERVER['REQUEST_URI'], '/' );
 
 		add_action( 'init', $this->handle_login_request( ... ), 2 );
@@ -80,6 +80,7 @@ class Plugin {
 		add_filter( 'wp_redirect', $this->modify_login_redirect( ... ), 10, 2 );
 		add_filter( 'login_redirect', $this->handle_login_redirect( ... ), 99, 3 );
 		add_filter( 'logout_redirect', $this->handle_logout_redirect( ... ), 99, 3 );
+
 	}
 
 	/**
@@ -176,10 +177,7 @@ class Plugin {
 	 * @return string Final redirect URL
 	 */
 	public function handle_logout_redirect( string $redirect_to, string $requested_redirect_to, \WP_User|\WP_Error $user ): string {
-		if ( $requested_redirect_to
-		     && $requested_redirect_to !== home_url()
-		     && ! str_contains( $requested_redirect_to, $this->login_path )
-		) {
+		if ( $requested_redirect_to && $requested_redirect_to !== home_url() && ! str_contains( $requested_redirect_to, $this->login_path ) ) {
 			return $requested_redirect_to;
 		}
 		if ( defined( self::KNTNT_LOGOUT_REDIRECT_PATH_CONSTANT ) ) {
