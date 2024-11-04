@@ -40,14 +40,15 @@ class Plugin {
 	private const KNTNT_LOGOUT_REDIRECT_PATH_FILTER = 'kntnt-logout-redirect-path';
 
 	/** @var array<string> Paths that should return 404 when custom login is active */
-	private const RESTRICTED_PAGES = [
+	private const RESTRICTED_PAGES
+		= [
 			'login',
 			'wp-login',
 			'wp-login.php',
 			'admin',
 			'wp-admin',
 			'wp-signup.php',
-	];
+		];
 
 	/** @var string|null Custom login path or null if not set */
 	private ?string $login_path;
@@ -198,13 +199,7 @@ class Plugin {
 	 * @return string|null Login path or null if not configured
 	 */
 	private function get_login_path(): ?string {
-		if ( defined( self::KNTNT_LOGIN_PATH_CONSTANT ) && ( $path = trim( constant( self::KNTNT_LOGIN_PATH_CONSTANT ), '/' ) ) ) {
-			return $path;
-		}
-		if ( $path = trim( apply_filters( self::KNTNT_LOGIN_PATH_FILTER, '' ), '/' ) ) {
-			return $path;
-		}
-		return null;
+		return $this->get_path( self::KNTNT_LOGIN_PATH_CONSTANT, self::KNTNT_LOGIN_PATH_FILTER );
 	}
 
 	/**
@@ -213,13 +208,7 @@ class Plugin {
 	 * @return string Path to redirect to after login
 	 */
 	private function get_login_redirect_path(): string {
-		if ( defined( self::KNTNT_LOGIN_REDIRECT_PATH_CONSTANT ) && ( $path = trim( constant( self::KNTNT_LOGIN_REDIRECT_PATH_CONSTANT ), '/' ) ) ) {
-			return $path;
-		}
-		if ( $path = trim( apply_filters( self::KNTNT_LOGIN_REDIRECT_PATH_FILTER, '' ), '/' ) ) {
-			return $path;
-		}
-		return 'wp-admin';
+		return $this->get_path( self::KNTNT_LOGIN_REDIRECT_PATH_CONSTANT, self::KNTNT_LOGIN_REDIRECT_PATH_FILTER, 'wp-admin' );
 	}
 
 	/**
@@ -228,13 +217,26 @@ class Plugin {
 	 * @return string|null Path to redirect to after logout or null if not set
 	 */
 	private function get_logout_redirect_path(): ?string {
-		if ( defined( self::KNTNT_LOGOUT_REDIRECT_PATH_CONSTANT ) && ( $path = trim( constant( self::KNTNT_LOGOUT_REDIRECT_PATH_CONSTANT ), '/' ) ) ) {
+		return $this->get_path( self::KNTNT_LOGOUT_REDIRECT_PATH_CONSTANT, self::KNTNT_LOGOUT_REDIRECT_PATH_FILTER );
+	}
+
+	/**
+	 * Gets a configured path from a constant or filter
+	 *
+	 * @param string      $constant Name of constant to check
+	 * @param string      $filter   Name of filter to apply
+	 * @param string|null $default  Default value if neither constant nor filter provides a value
+	 *
+	 * @return string|null Path or default value
+	 */
+	private function get_path( string $constant, string $filter, ?string $default = null ): ?string {
+		if ( defined( $constant ) && ( $path = trim( constant( $constant ), '/' ) ) ) {
 			return $path;
 		}
-		if ( $path = trim( apply_filters( self::KNTNT_LOGOUT_REDIRECT_PATH_FILTER, '' ), '/' ) ) {
+		if ( $path = trim( apply_filters( $filter, '' ), '/' ) ) {
 			return $path;
 		}
-		return null;
+		return $default;
 	}
 
 	/**
